@@ -1,0 +1,44 @@
+//This is my button activation and camera setup to create my "cutscenes"
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Button3 : MonoBehaviour
+{
+
+    public Animator Gate;
+    public Animator Button;
+    public Animator Camera;
+
+    public bool GateOpening;
+
+    public AudioSource ButtonAudio;
+
+    public AudioSource PortAudio;
+    private bool popped = false;
+    // Start is called before the first frame update
+    void Start()
+    {
+       
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+    //Added this if popped statement so the script would never run twice
+        if (popped == false)
+        {
+            if (collision.tag == "Crate")
+            {
+            //This script plays all of the Audio as well as activating the camera's Movement animation, then it starts the camera switcher script
+                ButtonAudio.Play();
+                popped = true;
+                Button.SetBool("ButtonActivated", true);
+                Gate.SetBool("GateOpen", true);
+                Camera.SetBool("GateOpen", true);
+                GateOpening = true;
+                PortAudio.Play();
+            }
+        }
+
+    }
+}
