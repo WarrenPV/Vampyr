@@ -1,0 +1,108 @@
+//Yea I came up with this mess of a camera switcher there are probably simpler ways to do it..
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraSwitcher : MonoBehaviour
+{
+//All of my different cameras and their lights and buttons
+    public Camera GateCam1;
+    public Camera CameraFollow;
+    public GameObject CamLight1;
+    public Camera GateCam2;
+    
+    public GameObject CamLight2;
+
+    public Camera GateCam3;
+
+    public GameObject CamLight3;
+    public Camera FountainCam;
+
+    public static bool CameraFollowOn = true;
+    public static bool GateCam1On  = false;
+    public static bool GateCam2On = false;
+    public static bool GateCam3On = false;
+
+    public FirstButton FB;
+
+    public SecondButton SB;
+
+    public Button3 TB;
+
+    public leverOn LR;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+    //Didn't want any cameras or lights on too early because it wouldn't look good.
+        GateCam1.enabled = false;
+        CamLight1.SetActive(false);
+        GateCam2.enabled = false;
+        CamLight2.SetActive(false);
+        GateCam3.enabled = false;
+        CamLight3.SetActive(false);
+        FountainCam.enabled = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    //So what happens is when the button is pressed it activates one of these scripts when then starts animation
+    //Turns on the cameras light and starts the coroutine which turns the camera back to the one following our player.
+        if (FB.GateOpening == true)
+        {
+            PauseMenu.isPaused = true;
+            GateCam1.enabled = true;
+            CamLight1.SetActive(true);
+            StartCoroutine("WaitForSeconds");
+        }
+
+        if (SB.GateOpening == true)
+        {
+            PauseMenu.isPaused = true;
+            GateCam2.enabled = true;
+            CamLight2.SetActive(true);
+            StartCoroutine("WaitForSeconds");
+        }
+        
+        if (TB.GateOpening == true)
+        {
+            PauseMenu.isPaused = true;
+            GateCam3.enabled = true;
+            CamLight3.SetActive(true);
+            StartCoroutine("WaitForSeconds");
+        }
+
+        if (leverOn.LeverPulled == true)
+        {
+            PauseMenu.isPaused = true;
+            FountainCam.enabled = true;
+            Debug.Log("Camera");
+            StartCoroutine("WaitForSeconds");
+        }
+    }
+
+    IEnumerator WaitForSeconds()
+    {
+    //Yea... 3 of the cameras animations are set to 3 seconds while the other longer one is 6 seconds...
+        yield return new WaitForSeconds(3);
+        FB.GateOpening = false;
+        GateCam1.enabled = false;
+        CamLight1.SetActive(false);
+        TB.GateOpening = false;
+        GateCam3.enabled = false;
+        CamLight3.SetActive(false);
+        FountainCam.enabled = false;
+        TB.GateOpening = false;
+        FB.GateOpening = false;
+        leverOn.LeverPulled = false;
+        PauseMenu.isPaused = false;
+        yield return new WaitForSeconds(3);
+        SB.GateOpening = false;
+        GateCam2.enabled = false;
+        CamLight2.SetActive(false);
+        SB.GateOpening = false;
+        
+
+    }
+}
