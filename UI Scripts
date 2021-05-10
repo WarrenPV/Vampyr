@@ -1,0 +1,178 @@
+// This is my Pause menu / All UI control panel
+
+public class PauseMenu : MonoBehaviour
+{
+    public GameObject Pause_Menu;
+    public static bool isPaused = false;
+
+    public GameObject Controls_Menu;
+
+    public GameObject Teleports;
+
+    public static bool tutorialFreeze;
+
+    public GameObject PopUpsColliders;
+    public GameObject PopUpText;
+    public GameObject StartMenu;
+    public GameObject HUD;
+    public AudioSource Soundtrack;
+    public GameObject Controls_Menu_2;
+    
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+    // Setting all UI I don't need to false and pausing all inputs until the player hits the start button
+    // I had to pause the game like this to combat the fact that this project was only allowed to use 1 unity scene
+        Pause_Menu.SetActive(false);
+        Controls_Menu.SetActive(false);
+        Teleports.SetActive(false);
+        tutorialFreeze = false;
+        isPaused = true;
+        HUD.SetActive(false);
+        Controls_Menu_2.SetActive(false);
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    //This section activates anytime the player opens a text box as they are playing.
+        if (tutorialFreeze == true)
+        {
+            PausedTutorial();
+        }
+        
+     // Esc pauses the game here
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused == false)
+            {
+                PauseGame();
+            }
+            else
+            {
+                ResumeGame();
+            }
+                
+        }
+     // This open my playtesting menu that allowed us to teleport around the levels in real time to make playtesting easier.
+        if (isPaused == true && Input.GetKeyDown(KeyCode.Equals))
+        {
+            Teleports.SetActive(true);
+        }
+        
+    }
+
+    public void StartGame()
+    {
+    //It was just easier to put the background soundtrack controls in the UI script so I didn't have to reference as many things.
+        StartMenu.SetActive(false);
+        HUD.SetActive(true);
+        Soundtrack.Play();
+        ResumeGame();
+    }
+
+    public void PauseGame()
+    {
+        Pause_Menu.SetActive(true);
+        Time.timeScale = 0f;
+        isPaused = true;
+        
+        // Avoiding the issue of overlaping UI by just double checking that the UI is turned off.
+        
+        StartMenu.SetActive(false);
+        Controls_Menu.SetActive(false);
+    }
+    public void PausedTutorial()
+    {
+    //My Pop Text game pausing area, when the player presses any key the game will return to normal speed
+    //Doing the popups this way was really jarring for the players and I don't like it but I didn't have any other ideas.
+        Time.timeScale = 0f;
+        isPaused = true;
+        if (Input.anyKeyDown)
+        {
+            tutorialFreeze = false;
+            ResumeGame();
+            
+        }
+    }
+    public void ResumeGame()
+    {
+        Pause_Menu.SetActive(false);
+        Time.timeScale = 1f;
+        isPaused = false;
+        Controls_Menu.SetActive(false);
+        Teleports.SetActive(false);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 1f;
+        isPaused = false;
+    }
+    public void TeleportCastle()
+    {
+    //These are my teleport scripts for the playtesting UI    
+        
+        PlayerMovement.RespawnPoint = new Vector2(83, 20);
+        PlayerMovement.teleportDeveloper = true;
+    }
+
+    public void TeleportGarden()
+    {
+//These are my teleport scripts for the playtesting UI 
+        PlayerMovement.RespawnPoint = new Vector2(163, 41);
+        PlayerMovement.teleportDeveloper = true;
+    }
+    public void TeleportDungeon()
+    {
+//These are my teleport scripts for the playtesting UI 
+        PlayerMovement.RespawnPoint = new Vector2(6, 2);
+        PlayerMovement.teleportDeveloper = true;
+    }
+
+    public void TestArea()
+    {
+//These are my teleport scripts for the playtesting UI 
+        PlayerMovement.RespawnPoint = new Vector2(170, -40);
+        PlayerMovement.teleportDeveloper = true;
+    }
+
+    public void Controls()
+    {
+        StartMenu.SetActive(false);
+        Pause_Menu.SetActive(false);
+        Controls_Menu.SetActive(true);
+    }
+    
+ // I had to have 2 seperate control panel scripts because you could glitch the main menu and start the game without actually ever pressing start.
+ 
+    public void controls2()
+    {
+        StartMenu.SetActive(false);
+        Controls_Menu_2.SetActive(true);
+    }
+    public void MainMenu()
+    {
+        Controls_Menu_2.SetActive(false);
+        StartMenu.SetActive(true);
+        isPaused = true;
+    }
+    public void PopUps()
+    {
+    // I added this script because I don't like the popups stopping my play speed.. So this button on the UI just turns them off.
+        Debug.Log("Turn off pop Up tips..");
+        PopUpsColliders.SetActive(false);
+        PopUpText.SetActive(false);
+
+    }
+
+
+}
