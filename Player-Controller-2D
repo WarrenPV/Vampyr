@@ -1,0 +1,181 @@
+//This is our highly customized 2d player controller
+//It uses a layer mask to check for the player on the ground 
+// As well as variable jump heights depending on how long the player holds down space bar.
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+
+public class Movement5 : MonoBehaviour
+{
+    public CameraFollow cameraFollow;
+    public Transform playerTransform;
+    public AudioSource Jump;
+    public AudioSource Run;
+    public AudioSource Walk;
+
+    public float speed;
+    private float moveInput;
+
+    private Rigidbody2D rb;
+    private bool facingRight = true;
+
+    public static bool isGrounded;
+    public Transform groundCheck;
+    public float checkRadius;
+    public LayerMask whatIsGround;
+
+    private bool jump = false;
+    private bool jumpCancel = false;
+    public float jumpShortSpeed = 3f;   // Velocity for the lowest jump
+    public float jumpSpeed = 9f;          // Velocity for the highest jump
+
+
+    private float mayJump = 0.5f;
+
+    public Animator Movement;
+
+    private float HorizontalMove;
+
+    public UnityEvent OnLandEvent;
+
+    public ParticleSystem Dust;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        cameraFollow.Setup(() => playerTransform.position);
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+
+        if (!PauseMenu.isPaused)
+        {
+            mayJump -= Time.deltaTime;
+            //Debug.Log(mayJump);
+            if (isGrounded)
+            {
+                
+                mayJump = 0.125f;
+            }
+
+            if (Input.GetButtonDown("Jump") && (isGrounded || mayJump > 0))
+            {   // Player starts pressing the button
+                jump = true;
+                Movement.SetBool("IsJumping", true);
+
+            }
+            if (Input.GetButtonUp("Jump") && !isGrounded)
+            {
+                // Player stops pressing the button
+                jumpCancel = true;
+                Movement.SetBool("IsJumping", false);
+            }
+        }
+       
+    }
+    private void FixedUpdate()
+    {
+        if (PauseMenu.isPaused == false)
+        {
+        //This is where our script checks for ground
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+
+
+            Movement.SetFloat("Speed", Mathf.Abs(HorizontalMove));
+            moveInput = Input.GetAxisRaw("Horizontal");
+           
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (isGrounded && HorizontalMove > 6 || HorizontalMove < -6)
+                {
+                //This was originally how my run sound effects were setup before I found a better sounding way to do it.
+                    //Run.Play();
+                }
+
+                rb.velocity = new Vector2(moveInput * speed * 1.3f, rb.velocity.y);
+                HorizontalMove = Input.GetAxisRaw("Horizontal") * speed * 1.3f;
+            }
+            else
+            {
+                //Walk.Play();
+                rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
+                HorizontalMove = Input.GetAxisRaw("Horizontal") * speed;
+            }
+
+
+            if (facingRight == false && moveInput > 0)
+            {
+
+                Flip();
+
+            }
+            if (facingRight == true && moveInput < 0)
+            {
+
+                Flip();
+
+            }
+
+
+            // Normal jump (full speed)
+            if (jump)
+            {
+                CreateDust();
+                Jump.Play();
+                rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
+                jump = false;
+
+            }
+            // Cancel the jump when the button is no longer pressed
+            if (jumpCancel)
+            {
+
+                if (rb.velocity.y > jumpShortSpeed)
+                    rb.velocity = new Vector2(rb.velocity.x, jumpShortSpeed);
+                jumpCancel = false;
+            }
+        }
+    }
+    //This was supposed to add a cloud of dust everytime the player hit the ground but I didn't have time to get it working.
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (isGrounded)
+        {
+            OnLandEvent.Invoke();
+            
+        }
+    }
+
+    public void OnLanding()
+    {
+       // Debug.Log("Landing");
+        Movement.SetBool("IsJumping", false);
+        
+    }
+    
+    //flip script also creates a dust cloud 
+    void Flip()
+    {
+
+        CreateDust();
+            facingRight = !facingRight;
+            Vector3 Scalar = transform.localScale;
+            Scalar.x *= -1;
+            transform.localScale = Scalar;
+        
+       
+    }
+
+    void CreateDust()
+    {
+        Dust.Play();
+    }
+}
