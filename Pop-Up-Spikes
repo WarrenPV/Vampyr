@@ -1,0 +1,57 @@
+//This script activates the spike pop up animation as well as playing the spike sound effect
+//
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Spikes : MonoBehaviour
+{
+    public Animator animator;
+
+    public AudioSource Spike;
+
+    private bool SpikeActivated;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        animator.SetBool("SpikeActivate", false);
+        SpikeActivated = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
+        {
+            if (SpikeActivated == false)
+            {
+                StartCoroutine("WaitForSec");
+            }
+        }
+            
+        
+        
+        
+    }
+
+    IEnumerator WaitForSec()
+    {
+        SpikeActivated = true;
+        yield return new WaitForSeconds(.5f);
+        
+        animator.SetBool("SpikeActivate", true);
+        yield return new WaitForSeconds(.25f);
+        Spike.Play();
+        yield return new WaitForSeconds(3.75f);
+        animator.SetBool("SpikeActivate", false);
+        SpikeActivated = false;
+        
+        
+    }
+}
