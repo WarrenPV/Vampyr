@@ -1,0 +1,46 @@
+public class CrateRespawn : MonoBehaviour
+{
+// Declaring all of my variables
+    Vector2 spawnPoint;
+    public Rigidbody2D CrateRB;
+    public int respawnTime = 8;
+    public Animator CrateAnim;
+    
+
+    // Start is called before the first frame update
+    void Start()
+    {
+    //This tracks the Crates starting position from it being placed in the editor so I don't have to save each individual spawn point for the respawn system
+        spawnPoint = new Vector2(CrateRB.position.x, CrateRB.position.y);
+        CrateRB = GetComponent<Rigidbody2D>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+        
+
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Spike")
+        {
+            
+            StartCoroutine("Respawn");
+        }
+    }
+
+    IEnumerator Respawn()
+    {
+    // This Coroutine creates the animations for the crate as well as reseting the crate to its starting position after 10 seconds
+        yield return new WaitForSeconds(5);
+        CrateAnim.SetBool("Cracking", true);
+        yield return new WaitForSeconds(3);
+        CrateAnim.SetBool("Broken", true);
+        yield return new WaitForSeconds(2);
+        this.transform.position = spawnPoint;
+        CrateAnim.SetBool("Broken", false);
+        CrateAnim.SetBool("Cracking", false);
+    }
+}
