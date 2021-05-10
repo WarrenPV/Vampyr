@@ -1,0 +1,83 @@
+//This falling platform script houses all the animations and sound effects for the breaking..
+//As well as turns off the collider after it has fallen long enough. 
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Falling_Platform : MonoBehaviour
+{
+    float dirX, moveSpeed = 6f;
+    float direction = -1;
+    bool falling;
+    private Vector2 platformStart;
+    float startY = 0;
+    float startX = 0;
+    public Animator FallingBreak;
+
+    public Collider2D Box;
+
+    public AudioSource Cracking;
+    private bool Crack;
+    
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        Crack = false;
+        falling = false;
+        startY = transform.position.y;
+        startX = transform.position.x;
+  //Making sure each individual platform remembers where they started from and saving it.
+        platformStart = new Vector2(startX, startY);
+    }
+    
+    private void Update()
+    {
+        if (Crack == true)
+        {
+            Cracking.Play();
+            Crack = false;
+        }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        if (falling == true)
+        {
+            transform.position = new Vector2(transform.position.x, transform.position.y + moveSpeed * Time.deltaTime * direction);
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            StartCoroutine("WaitForSec");
+        }
+
+
+    }
+    
+    IEnumerator WaitForSec()
+        {
+      //Starts the cracking animation and then turns off the box collider
+        FallingBreak.SetBool("Breaking", true);
+        yield return new WaitForSeconds(.45f);
+        Crack = true;
+        falling = true;
+        yield return new WaitForSeconds(.25f);
+        Box.enabled = false;
+        
+        yield return new WaitForSeconds(2);
+
+       //box collider back on then teleport the object back to its starting position. 
+       
+        falling = false;
+        yield return new WaitForSeconds(2);
+        Box.enabled = true;
+        FallingBreak.SetBool("Breaking", false);
+        transform.position = platformStart;
+        
+        // direction = direction/ * -1;
+    }
+}
